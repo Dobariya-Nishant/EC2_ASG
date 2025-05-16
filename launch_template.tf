@@ -1,7 +1,7 @@
 resource "aws_launch_template" "ec2_template" {
   name          = local.launch_template_name
   instance_type = var.instance_type
-  image_id      = local.image_id
+  image_id      = "ami-05712a2b73d4ebafb"
   key_name      = local.key_pair_name
 
   user_data = base64encode(<<-EOF
@@ -19,7 +19,7 @@ resource "aws_launch_template" "ec2_template" {
   }
 
   iam_instance_profile {
-    name = aws_iam_role.ecs_instance_role.name
+    name = aws_iam_instance_profile.ecs_profile.name
   }
 
   block_device_mappings {
