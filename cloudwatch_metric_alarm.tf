@@ -1,5 +1,5 @@
 resource "aws_cloudwatch_metric_alarm" "scale_out_cpu" {
-  alarm_name          = "scale-out-cpu"
+  alarm_name          = local.scale_out_metric_alarm_name
   alarm_description   = "Scale out when CPU > 80%"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = 2
@@ -17,14 +17,14 @@ resource "aws_cloudwatch_metric_alarm" "scale_out_cpu" {
   tags = merge(
     local.common_tags,
     {
-      Name = "scale-out-cpu"
+      Name = local.scale_out_metric_alarm_name
     }
   )
 }
 
 resource "aws_cloudwatch_metric_alarm" "scale_in_cpu" {
-  alarm_name          = "scale-in-cpu"
-  alarm_description   = "Scale out when CPU < 60%"
+  alarm_name          = local.scale_in_metric_alarm_name
+  alarm_description   = "Scale in when CPU < 60%"
   comparison_operator = "LessThanOrEqualToThreshold"
   evaluation_periods  = 2
   metric_name         = "CPUUtilization"
@@ -41,7 +41,7 @@ resource "aws_cloudwatch_metric_alarm" "scale_in_cpu" {
   tags = merge(
     local.common_tags,
     {
-      Name = "scale-in-cpu"
+      Name = local.scale_in_metric_alarm_name
     }
   )
 }

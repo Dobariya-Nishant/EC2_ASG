@@ -1,17 +1,5 @@
-data "aws_ami" "amazon_linux_2023_ecs_optimized" {
-  most_recent = true
-
-  filter {
-    name   = "name"
-    values = ["al2023-ecs-ami-*-x86_64"] # ECS optimized pattern
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  owners = ["137112412989"] # Amazon official
+data "aws_ssm_parameter" "ecs_ami_al2023" {
+  name = "/aws/service/ecs/optimized-ami/amazon-linux-2023/recommended/image_id"
 }
 
 data "aws_iam_policy" "ecs_ec2_role_policy" {

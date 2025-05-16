@@ -1,15 +1,17 @@
 locals {
-  post_fix                = "${var.resource_name}-${var.environment}"
-  visibility              = var.enable_public_access ? "public" : "private"
-  launch_template_name    = "lt-${local.post_fix}"
-  ebs_size                = var.environment == "prod" ? 10 : 8
-  sg_name                 = "${local.visibility}-sg-${local.post_fix}"
-  auto_scaling_group_name = "${local.visibility}-asg-${local.post_fix}"
-  placement_group_name    = "${local.visibility}-plg-${local.post_fix}"
-  subnet_ids              = concat(var.public_subnet_ids, var.private_subnet_ids)
-  image_id                = try(var.image_id, data.aws_ami.amazon_linux_2023_ecs_optimized.id)
-  key_name                = "key-${local.post_fix}"
-  key_pair_name           = try(var.key_pair_name, aws_key_pair.generated_key[0].key_name, null)
+  post_fix                    = "${var.resource_name}-${var.environment}"
+  visibility                  = var.enable_public_access ? "public" : "private"
+  launch_template_name        = "lt-${local.post_fix}"
+  ebs_size                    = var.environment == "prod" ? 10 : 8
+  sg_name                     = "${local.visibility}-sg-${local.post_fix}"
+  auto_scaling_group_name     = "${local.visibility}-asg-${local.post_fix}"
+  placement_group_name        = "${local.visibility}-plg-${local.post_fix}"
+  scale_out_metric_alarm_name = "scale-out-${local.visibility}-ec2-${local.post_fix}"
+  scale_in_metric_alarm_name  = "scale-in-${local.visibility}-ec2-${local.post_fix}"
+  subnet_ids                  = concat(var.public_subnet_ids, var.private_subnet_ids)
+  image_id                    = try(var.image_id, data.aws_ssm_parameter.ecs_ami_al2023.value)
+  key_name                    = "key-${local.post_fix}"
+  key_pair_name               = try(var.key_pair_name, aws_key_pair.generated_key[0].key_name, null)
   common_tags = {
     Project     = var.project_name
     Environment = var.environment
@@ -35,6 +37,7 @@ variable "use_spot" {
 
 variable "ecs_cluster_name" {
   type        = string
+  default = null
   description = "Name of ECS cluster"
 }
 
