@@ -9,9 +9,10 @@ locals {
   scale_out_metric_alarm_name = "scale-out-${local.visibility}-ec2-${local.post_fix}"
   scale_in_metric_alarm_name  = "scale-in-${local.visibility}-ec2-${local.post_fix}"
   subnet_ids                  = concat(var.public_subnet_ids, var.private_subnet_ids)
-  image_id                    = try(var.image_id, "ami-05712a2b73d4ebafb")
+  image_id                    = try(var.image_id, "ami-0e58b56aa4d64231b")
   key_name                    = "key-${local.post_fix}"
-  key_pair_name               = try(var.key_pair_name, aws_key_pair.generated_key[0].key_name, null)
+  key_pair_name               = aws_key_pair.generated_key[0].key_name
+  user_data                   = length(var.ecs_cluster_name) > 0 ? data.template_file.ecs_user_data.rendered : data.template_file.init_user_data.rendered
   common_tags = {
     Project     = var.project_name
     Environment = var.environment
@@ -37,7 +38,7 @@ variable "use_spot" {
 
 variable "ecs_cluster_name" {
   type        = string
-  default = null
+  default     = null
   description = "Name of ECS cluster"
 }
 

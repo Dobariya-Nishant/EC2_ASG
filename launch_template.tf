@@ -1,15 +1,10 @@
 resource "aws_launch_template" "ec2_template" {
   name          = local.launch_template_name
   instance_type = var.instance_type
-  image_id      = "ami-05712a2b73d4ebafb"
+  image_id      = "ami-0b0a5797106b419a3"
   key_name      = local.key_pair_name
 
-  user_data = base64encode(<<-EOF
-    #!/bin/bash
-    sudo echo "ECS_CLUSTER=${var.ecs_cluster_name}" >> /etc/ecs/ecs.config
-    sudo systemctl enable --now ecs
-    EOF
-  )
+  user_data = base64encode(local.user_data)
 
   dynamic "instance_market_options" {
     for_each = var.use_spot ? [1] : []

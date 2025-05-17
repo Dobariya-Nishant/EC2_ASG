@@ -7,7 +7,7 @@ resource "aws_autoscaling_group" "multi_az_group" {
   name                      = local.auto_scaling_group_name
   desired_capacity          = 2
   max_size                  = 6
-  min_size                  = 1
+  min_size                  = 2
   health_check_grace_period = 120
   health_check_type         = var.health_check_type
   placement_group           = aws_placement_group.strategy.id
