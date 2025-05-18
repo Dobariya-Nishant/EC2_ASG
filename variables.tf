@@ -9,10 +9,12 @@ locals {
   scale_out_metric_alarm_name = "scale-out-${local.visibility}-ec2-${local.post_fix}"
   scale_in_metric_alarm_name  = "scale-in-${local.visibility}-ec2-${local.post_fix}"
   subnet_ids                  = concat(var.public_subnet_ids, var.private_subnet_ids)
-  image_id                    = try(var.image_id, "ami-0e58b56aa4d64231b")
   key_name                    = "key-${local.post_fix}"
-  key_pair_name               = aws_key_pair.generated_key[0].key_name
+  key_pair_name               = length(var.key_pair_name) > 0 ? var.key_pair_name : aws_key_pair.generated_key[0].key_name
+  image_id                    = length(var.ecs_cluster_name) > 0 ? data.aws_ami.al2023_ecs_kernel6plus.image_id : data.aws_ami.al2023_kernel6plus.image_id
   user_data                   = length(var.ecs_cluster_name) > 0 ? data.template_file.ecs_user_data.rendered : data.template_file.init_user_data.rendered
+  ecs_instance_role_name      = "ecsInstanceRole-${local.post_fix}"
+  ecs_instance_profile_name   = "ecsInstanceProfile-${local.post_fix}"
   common_tags = {
     Project     = var.project_name
     Environment = var.environment
@@ -52,17 +54,6 @@ variable "instance_placement_strategy" {
   type        = string
   default     = "spread"
   description = "Name of ECS cluster"
-}
-
-variable "image_id" {
-  type        = string
-  default     = null
-  description = "amazon machine image id"
-
-  validation {
-    condition     = var.image_id != ""
-    error_message = "AMI ID must be provided or resolvable via data source."
-  }
 }
 
 variable "loadbalancer_sg_id" {
@@ -108,6 +99,12 @@ variable "enable_public_access" {
     condition     = !(var.enable_public_access == true && length(var.public_subnet_ids) == 0)
     error_message = "To enable public access, at least one public subnet is needed."
   }
+}
+
+variable "enable_auto_scaling_alarms" {
+  type        = bool
+  default     = false
+  description = "Whether to enable public access for EC2 instances via public subnets."
 }
 
 variable "enable_http" {

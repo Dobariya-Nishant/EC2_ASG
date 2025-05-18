@@ -1,7 +1,7 @@
 resource "aws_launch_template" "ec2_template" {
   name          = local.launch_template_name
   instance_type = var.instance_type
-  image_id      = "ami-0b0a5797106b419a3"
+  image_id      = local.image_id
   key_name      = local.key_pair_name
 
   user_data = base64encode(local.user_data)
@@ -13,8 +13,11 @@ resource "aws_launch_template" "ec2_template" {
     }
   }
 
-  iam_instance_profile {
-    name = aws_iam_instance_profile.ecs_profile.name
+  dynamic "iam_instance_profile" {
+    for_each = length(var.ecs_cluster_name) > 0 && length(aws_iam_instance_profile.ecs_profile[0].name) > 0 ? [1] : []
+    content {
+      name = aws_iam_instance_profile.ecs_profile[0].name
+    }
   }
 
   block_device_mappings {

@@ -1,10 +1,25 @@
+data "aws_ami" "al2023_ecs_kernel6plus" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["al2023-ami-ecs-hvm-2023*-kernel-6*-x86_64"]
+  }
+
+  filter {
+    name   = "state"
+    values = ["available"]
+  }
+}
+
 data "aws_ami" "al2023_kernel6plus" {
   most_recent = true
   owners      = ["amazon"]
 
   filter {
     name   = "name"
-    values = ["al2023-ami-*-kernel-6.*-x86_64"]
+    values = ["al2023-ami-2023*-kernel-6*-x86_64"]
   }
 
   filter {

@@ -32,6 +32,8 @@ resource "aws_autoscaling_group" "multi_az_group" {
 }
 
 resource "aws_autoscaling_policy" "scale_out_cpu" {
+  count = var.enable_auto_scaling_alarms == true ? 1 : 0
+
   name                   = "scale-out-cpu"
   scaling_adjustment     = 1
   adjustment_type        = "ChangeInCapacity"
@@ -41,6 +43,8 @@ resource "aws_autoscaling_policy" "scale_out_cpu" {
 }
 
 resource "aws_autoscaling_policy" "scale_in_cpu" {
+  count = var.enable_auto_scaling_alarms == true ? 1 : 0
+
   name                   = "scale-in-cpu"
   scaling_adjustment     = "-1"
   adjustment_type        = "ChangeInCapacity"

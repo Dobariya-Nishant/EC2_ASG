@@ -1,2 +1,4 @@
 #!/bin/bash
-sudo dnf update -y
+
+set -e
+sudo dnf upgrade --refresh -y
