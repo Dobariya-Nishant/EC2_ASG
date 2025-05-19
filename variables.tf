@@ -2,7 +2,6 @@ locals {
   post_fix                    = "${var.resource_name}-${var.environment}"
   visibility                  = var.enable_public_access ? "public" : "private"
   launch_template_name        = "lt-${local.post_fix}"
-  ebs_size                    = var.environment == "prod" ? 10 : 30
   sg_name                     = "${local.visibility}-sg-${local.post_fix}"
   auto_scaling_group_name     = "${local.visibility}-asg-${local.post_fix}"
   placement_group_name        = "${local.visibility}-plg-${local.post_fix}"
@@ -10,9 +9,9 @@ locals {
   scale_in_metric_alarm_name  = "scale-in-${local.visibility}-ec2-${local.post_fix}"
   subnet_ids                  = concat(var.public_subnet_ids, var.private_subnet_ids)
   key_name                    = "key-${local.post_fix}"
-  key_pair_name               = length(var.key_pair_name) > 0 ? var.key_pair_name : aws_key_pair.generated_key[0].key_name
-  image_id                    = length(var.ecs_cluster_name) > 0 ? data.aws_ami.al2023_ecs_kernel6plus.image_id : data.aws_ami.al2023_kernel6plus.image_id
-  user_data                   = length(var.ecs_cluster_name) > 0 ? data.template_file.ecs_user_data.rendered : data.template_file.init_user_data.rendered
+  key_pair_name               = var.key_pair_name != null ? var.key_pair_name : aws_key_pair.generated_key[0].key_name
+  image_id                    = var.ecs_cluster_name != null ? data.aws_ami.al2023_ecs_kernel6plus.image_id : data.aws_ami.al2023_kernel6plus.image_id
+  user_data                   = var.ecs_cluster_name != null ? data.template_file.ecs_user_data.rendered : data.template_file.init_user_data.rendered
   ecs_instance_role_name      = "ecsInstanceRole-${local.post_fix}"
   ecs_instance_profile_name   = "ecsInstanceProfile-${local.post_fix}"
   common_tags = {
@@ -88,6 +87,12 @@ variable "instance_type" {
 variable "ebs_type" {
   type        = string
   default     = "gp2"
+  description = "EBS volume type for EC2 instances (e.g., gp2, gp3, io1)."
+}
+
+variable "ebs_size" {
+  type        = string
+  default     = 30
   description = "EBS volume type for EC2 instances (e.g., gp2, gp3, io1)."
 }
 

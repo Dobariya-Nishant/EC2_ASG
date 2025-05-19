@@ -14,7 +14,7 @@ resource "aws_launch_template" "ec2_template" {
   }
 
   dynamic "iam_instance_profile" {
-    for_each = length(var.ecs_cluster_name) > 0 && length(aws_iam_instance_profile.ecs_profile[0].name) > 0 ? [1] : []
+    for_each = var.ecs_cluster_name != null && length(aws_iam_instance_profile.ecs_profile[0].name) > 0 ? [1] : []
     content {
       name = aws_iam_instance_profile.ecs_profile[0].name
     }
@@ -23,7 +23,7 @@ resource "aws_launch_template" "ec2_template" {
   block_device_mappings {
     device_name = "/dev/xvda"
     ebs {
-      volume_size           = local.ebs_size
+      volume_size           = var.ebs_size
       volume_type           = var.ebs_type
       delete_on_termination = true
       encrypted             = true
