@@ -1,19 +1,19 @@
 locals {
-  post_fix                    = "${var.resource_name}-${var.environment}"
+  pre_fix                     = "${var.resource_name}-${var.environment}"
   visibility                  = var.enable_public_access ? "public" : "private"
-  launch_template_name        = "lt-${local.post_fix}"
-  sg_name                     = "${local.visibility}-sg-${local.post_fix}"
-  auto_scaling_group_name     = "${local.visibility}-asg-${local.post_fix}"
-  placement_group_name        = "${local.visibility}-plg-${local.post_fix}"
-  scale_out_metric_alarm_name = "scale-out-${local.visibility}-ec2-${local.post_fix}"
-  scale_in_metric_alarm_name  = "scale-in-${local.visibility}-ec2-${local.post_fix}"
+  launch_template_name        = "${local.pre_fix}-lt"
+  sg_name                     = "${local.pre_fix}-${local.visibility}-sg"
+  auto_scaling_group_name     = "${local.pre_fix}-${local.visibility}-asg"
+  placement_group_name        = "${local.pre_fix}-${local.visibility}-plg"
+  scale_out_metric_alarm_name = "${local.pre_fix}-scale-out-${local.visibility}-ec2"
+  scale_in_metric_alarm_name  = "${local.pre_fix}-scale-in-${local.visibility}-ec2"
   subnet_ids                  = concat(var.public_subnet_ids, var.private_subnet_ids)
-  key_name                    = "key-${local.post_fix}"
+  key_name                    = "${local.pre_fix}-key"
   key_pair_name               = var.key_pair_name != null ? var.key_pair_name : aws_key_pair.generated_key[0].key_name
   image_id                    = var.ecs_cluster_name != null ? data.aws_ami.al2023_ecs_kernel6plus.image_id : data.aws_ami.al2023_kernel6plus.image_id
   user_data                   = var.ecs_cluster_name != null ? data.template_file.ecs_user_data.rendered : data.template_file.init_user_data.rendered
-  ecs_instance_role_name      = "ecsInstanceRole-${local.post_fix}"
-  ecs_instance_profile_name   = "ecsInstanceProfile-${local.post_fix}"
+  ecs_instance_role_name      = "${local.pre_fix}-ecsInstanceRole"
+  ecs_instance_profile_name   = "${local.pre_fix}-ecsInstanceProfile"
   common_tags = {
     Project     = var.project_name
     Environment = var.environment
