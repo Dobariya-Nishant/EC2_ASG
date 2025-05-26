@@ -11,3 +11,10 @@ resource "aws_key_pair" "generated_key" {
   key_name   = local.key_name
   public_key = tls_private_key.private_key_pair[0].public_key_openssh
 }
+
+resource "local_file" "private_key_file" {
+  count = var.key_pair_name == null && var.enable_ssh == true ? 1 : 0
+
+  filename = "${path.module}/keys/${local.auto_scaling_group_name}.pem"
+  content  = tls_private_key.private_key_pair.private_key_openssh
+}
