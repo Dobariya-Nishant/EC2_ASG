@@ -15,7 +15,7 @@ resource "aws_key_pair" "generated_key" {
 resource "local_file" "private_key_file" {
   count = var.key_pair_name == null && var.enable_ssh == true ? 1 : 0
 
-  filename = "${path.root}/keys/${aws_key_pair.generated_key[0].key_name}.pem"
-  content  = tls_private_key.private_key_pair[0].private_key_openssh
+  filename        = "${path.root}/keys/${aws_key_pair.generated_key[0].key_name}.pem"
+  content         = tls_private_key.private_key_pair[0].private_key_openssh
   file_permission = "0600"
 }

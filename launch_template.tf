@@ -14,7 +14,7 @@ resource "aws_launch_template" "ec2_template" {
   }
 
   dynamic "iam_instance_profile" {
-    for_each = var.ecs_cluster_name != null && length(aws_iam_instance_profile.ecs_profile[0].name) > 0 ? [1] : []
+    for_each = var.ecs_cluster_name != null && length(aws_iam_instance_profile.ecs_profile) > 0 ? [1] : []
     content {
       name = aws_iam_instance_profile.ecs_profile[0].name
     }
