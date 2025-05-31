@@ -12,6 +12,7 @@ resource "aws_autoscaling_group" "multi_az_group" {
   health_check_type         = var.health_check_type
   placement_group           = aws_placement_group.strategy.id
   vpc_zone_identifier       = local.subnet_ids
+  protect_from_scale_in = var.enable_protect_from_scale_in
 
   target_group_arns = var.target_group_arns
 

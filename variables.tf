@@ -31,6 +31,11 @@ variable "resource_name" {
   description = "Base resource name used to uniquely identify all created resources."
 }
 
+variable "enable_protect_from_scale_in" {
+  type = bool
+  default = false
+}
+
 variable "use_spot" {
   type        = bool
   default     = false
