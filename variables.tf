@@ -1,19 +1,13 @@
+data "http" "my_ip" {
+  url = "https://api.ipify.org"
+}
+
 locals {
-  pre_fix                     = "${var.resource_name}-${var.environment}"                                                                              # Common prefix for naming resources
-  visibility                  = var.enable_public_access ? "public" : "private"                                                                        # Indicates visibility of the setup
-  launch_template_name        = "${local.pre_fix}-lt"                                                                                                  # EC2 launch template name
-  sg_name                     = "${local.pre_fix}-${local.visibility}-sg"                                                                              # Security group name based on visibility
-  auto_scaling_group_name     = "${local.pre_fix}-${local.visibility}-asg"                                                                             # Auto Scaling Group name
-  placement_group_name        = "${local.pre_fix}-${local.visibility}-plg"                                                                             # Placement group name for EC2 instances
-  scale_out_metric_alarm_name = "${local.pre_fix}-scale-out-${local.visibility}-ec2"                                                                   # CloudWatch alarm name for scaling out
-  scale_in_metric_alarm_name  = "${local.pre_fix}-scale-in-${local.visibility}-ec2"                                                                    # CloudWatch alarm name for scaling in
-  subnet_ids                  = concat(var.public_subnet_ids, var.private_subnet_ids)                                                                  # Combined subnet list for resource placement
-  key_name                    = "${local.pre_fix}-key"                                                                                                 # Key name used when generating EC2 key pair
-  key_pair_name               = var.key_pair_name == null && var.enable_ssh == true ? aws_key_pair.generated_key[0].key_name : var.key_pair_name       # Final key pair name
-  image_id                    = var.ecs_cluster_name != null ? data.aws_ami.al2023_ecs_kernel6plus.image_id : data.aws_ami.al2023_kernel6plus.image_id # Choose ECS-ready AMI or regular based on cluster
-  user_data                   = var.ecs_cluster_name != null ? data.template_file.ecs_user_data.rendered : data.template_file.init_user_data.rendered  # User data script based on ECS usage
-  ecs_instance_role_name      = "${local.pre_fix}-ecsInstanceRole"                                                                                     # IAM role name for ECS EC2 instances
-  ecs_instance_profile_name   = "${local.pre_fix}-ecsInstanceProfile"                                                                                  # IAM instance profile name for ECS EC2 instances
+  pre_fix                     = "${var.name}-${var.environment}"                                                                              # Common prefix for naming resources
+  visibility                  = var.enable_public_https || var.enable_public_https ? "public" : "private"        
+  my_ip_cidr = "${chomp(data.http.my_ip.body)}/32"
+  enable_ssh =  var.enable_public_ssh || local.enable_ssh_from_current_ip                                                       # Indicates visibility of the setup                                                                              # EC2 launch template name                                       
+  
   common_tags = {
     Project     = var.project_name # Project name tag
     Environment = var.environment  # Environment tag (dev/staging/prod)
@@ -26,7 +20,7 @@ variable "project_name" {
   description = "Name of the overall project. Used for consistent tagging and naming."
 }
 
-variable "resource_name" {
+variable "name" {
   type        = string
   description = "Base resource name used to uniquely identify all created resources."
 }
@@ -95,38 +89,51 @@ variable "ebs_size" {
   description = "Size of the EBS volume (in GB) attached to the EC2 instance."
 }
 
-variable "enable_public_access" {
-  type        = bool
-  default     = false
-  description = "Set to true to enable EC2 instance access from public internet via public subnet."
-  validation {
-    condition     = !(var.enable_public_access == true && length(var.public_subnet_ids) == 0)
-    error_message = "To enable public access, at least one public subnet is needed."
-  }
-}
-
 variable "enable_auto_scaling_alarms" {
   type        = bool
   default     = false
   description = "Whether to enable CloudWatch alarms for scaling EC2 instances in/out."
 }
 
-variable "enable_http" {
+variable "enable_public_http" {
   type        = bool
   default     = false
   description = "Enable ingress on port 80 for HTTP traffic."
+  validation {
+    condition     = !(var.enable_public_http == true && length(var.public_subnet_ids) == 0)
+    error_message = "To enable public access, at least one public subnet is needed."
+  }
 }
 
-variable "enable_https" {
+variable "enable_public_https" {
   type        = bool
   default     = false
   description = "Enable ingress on port 443 for HTTPS traffic."
+  validation {
+    condition     = !(var.enable_public_https == true && length(var.public_subnet_ids) == 0)
+    error_message = "To enable public access, at least one public subnet is needed."
+  }
 }
 
-variable "enable_ssh" {
+variable "enable_public_ssh" {
   type        = bool
   default     = false
   description = "Enable ingress on port 22 for SSH access to EC2 instances."
+}
+
+variable "enable_ssh_from_current_ip" {
+  description = "Enable SSH access from the IP of the machine running Terraform"
+  type        = bool
+  default     = false
+}
+
+variable "load_balancer_config"  {
+  type = optional(list(object({
+    sg_id = string
+    port  = number
+    protocol = optional(string)
+  })))
+  default = []
 }
 
 variable "private_subnet_ids" {

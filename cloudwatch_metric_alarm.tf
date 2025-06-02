@@ -1,7 +1,7 @@
 resource "aws_cloudwatch_metric_alarm" "scale_out_cpu" {
   count = var.enable_auto_scaling_alarms == true ? 1 : 0
 
-  alarm_name          = local.scale_out_metric_alarm_name
+  alarm_name          = "${local.pre_fix}-scale-out-${local.visibility}-ec2"
   alarm_description   = "Scale out when CPU > 80%"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = 2
@@ -19,7 +19,7 @@ resource "aws_cloudwatch_metric_alarm" "scale_out_cpu" {
   tags = merge(
     local.common_tags,
     {
-      Name = local.scale_out_metric_alarm_name
+      Name = "${local.pre_fix}-scale-out-${local.visibility}-ec2"
     }
   )
 }
@@ -27,7 +27,7 @@ resource "aws_cloudwatch_metric_alarm" "scale_out_cpu" {
 resource "aws_cloudwatch_metric_alarm" "scale_in_cpu" {
   count = var.enable_auto_scaling_alarms == true ? 1 : 0
 
-  alarm_name          = local.scale_in_metric_alarm_name
+  alarm_name          = "${local.pre_fix}-scale-in-${local.visibility}-ec2" 
   alarm_description   = "Scale in when CPU < 60%"
   comparison_operator = "LessThanOrEqualToThreshold"
   evaluation_periods  = 2
@@ -45,7 +45,7 @@ resource "aws_cloudwatch_metric_alarm" "scale_in_cpu" {
   tags = merge(
     local.common_tags,
     {
-      Name = local.scale_in_metric_alarm_name
+      Name = "${local.pre_fix}-scale-in-${local.visibility}-ec2" 
     }
   )
 }

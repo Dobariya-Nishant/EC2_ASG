@@ -1,17 +1,17 @@
 resource "aws_placement_group" "strategy" {
-  name     = local.placement_group_name
+  name     = "${local.pre_fix}-${local.visibility}-plg"  
   strategy = var.instance_placement_strategy
 }
 
 resource "aws_autoscaling_group" "multi_az_group" {
-  name                      = local.auto_scaling_group_name
+  name                      = "${local.pre_fix}-${local.visibility}-asg"
   desired_capacity          = var.desired_capacity
   max_size                  = var.max_size
   min_size                  = var.min_size
   health_check_grace_period = 120
   health_check_type         = var.health_check_type
   placement_group           = aws_placement_group.strategy.id
-  vpc_zone_identifier       = local.subnet_ids
+  vpc_zone_identifier       = concat(var.public_subnet_ids, var.private_subnet_ids)
   protect_from_scale_in = var.enable_protect_from_scale_in
 
   target_group_arns = var.target_group_arns
