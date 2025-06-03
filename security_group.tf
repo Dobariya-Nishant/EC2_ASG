@@ -48,7 +48,7 @@ resource "aws_security_group_rule" "public_http" {
 }
 
 resource "aws_security_group_rule" "public_https" {
-  count = var.enable_public_https == true? 1 : 0
+  count = var.enable_public_https == true ? 1 : 0
 
   type              = "ingress"
   from_port         = 443

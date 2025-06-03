@@ -3,11 +3,11 @@ data "http" "my_ip" {
 }
 
 locals {
-  pre_fix                     = "${var.name}-${var.environment}"                                                                              # Common prefix for naming resources
-  visibility                  = var.enable_public_https || var.enable_public_https ? "public" : "private"        
+  pre_fix    = "${var.name}-${var.environment}"                                                                              # Common prefix for naming resources
+  visibility = var.enable_public_http || var.enable_public_https ? "public" : "private"        
   my_ip_cidr = "${chomp(data.http.my_ip.body)}/32"
-  enable_ssh =  var.enable_public_ssh || local.enable_ssh_from_current_ip                                                       # Indicates visibility of the setup                                                                              # EC2 launch template name                                       
-  
+  enable_ssh = var.enable_public_ssh || var.enable_ssh_from_current_ip 
+
   common_tags = {
     Project     = var.project_name # Project name tag
     Environment = var.environment  # Environment tag (dev/staging/prod)
