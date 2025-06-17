@@ -4,14 +4,14 @@ data "http" "my_ip" {
 
 locals {
   pre_fix    = "${var.name}-${var.environment}"                                                                              # Common prefix for naming resources
-  visibility = var.enable_public_http || var.enable_public_https ? "public" : "private"        
+  visibility = var.enable_ssh_from_current_ip || var.enable_public_ssh || var.enable_public_http || var.enable_public_https ? "public" : "private"        
   my_ip_cidr = "${chomp(data.http.my_ip.body)}/32"
   enable_ssh = var.enable_public_ssh || var.enable_ssh_from_current_ip 
 
   common_tags = {
-    Project     = var.project_name # Project name tag
-    Environment = var.environment  # Environment tag (dev/staging/prod)
-    Visibility  = local.visibility # Visibility tag (public/private)
+    Project     = var.project_name 
+    Environment = var.environment  
+    Visibility  = local.visibility
   }
 }
 
@@ -119,20 +119,28 @@ variable "enable_public_ssh" {
   type        = bool
   default     = false
   description = "Enable ingress on port 22 for SSH access to EC2 instances."
+  validation {
+    condition     = !(var.enable_public_ssh == true && length(var.public_subnet_ids) == 0)
+    error_message = "To enable public shh access, at least one public subnet is needed."
+  }
 }
 
 variable "enable_ssh_from_current_ip" {
   description = "Enable SSH access from the IP of the machine running Terraform"
   type        = bool
   default     = false
+  validation {
+    condition     = !(var.enable_ssh_from_current_ip == true && length(var.public_subnet_ids) == 0)
+    error_message = "To enable shh access from current ip, at least one public subnet is needed."
+  }
 }
 
 variable "load_balancer_config"  {
-  type = optional(list(object({
+  type = list(object({
     sg_id = string
     port  = number
     protocol = optional(string)
-  })))
+  }))
   default = []
 }
 

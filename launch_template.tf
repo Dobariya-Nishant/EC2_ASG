@@ -4,7 +4,7 @@ resource "aws_launch_template" "ec2_template" {
   image_id      = var.ecs_cluster_name != null ? data.aws_ami.al2023_ecs_kernel6plus.image_id : data.aws_ami.al2023_kernel6plus.image_id
   key_name      = var.key_pair_name == null && local.enable_ssh == true ? aws_key_pair.generated_key[0].key_name : var.key_pair_name
 
-  user_data = base64encode(var.ecs_cluster_name != null ? data.template_file.ecs_user_data.rendered : data.template_file.init_user_data.rendered)
+  user_data = base64encode(var.ecs_cluster_name != null ? data.template_file.ecs_user_data[0].rendered : data.template_file.init_user_data.rendered)
 
   dynamic "instance_market_options" {
     for_each = var.use_spot ? [1] : []
